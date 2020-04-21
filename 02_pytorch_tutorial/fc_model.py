@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Network(nn.Module):
     def __init__(self, input_size, output_size, hidden_layers, drop_p=0.5):
@@ -42,6 +43,9 @@ def validation(model, testloader, criterion):
     test_loss = 0
     for images, labels in testloader:
 
+        images = images.to(device)
+        labels = labels.to(device)
+
         images = images.resize_(images.size()[0], 784)
 
         output = model.forward(images)
@@ -62,10 +66,15 @@ def train(model, trainloader, testloader, criterion, optimizer, epochs=5, print_
     
     steps = 0
     running_loss = 0
+    
     for e in range(epochs):
         # Model in training mode, dropout is on
         model.train()
         for images, labels in trainloader:
+            
+            images = images.to(device)
+            labels = labels.to(device)
+
             steps += 1
             
             # Flatten images into a 784 long vector
